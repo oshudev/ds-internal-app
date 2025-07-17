@@ -2,38 +2,37 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace App\Models\Auth;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property-read string $id
+ * @property-read string $name
+ * @property-read string|null $avatar
+ * @property-read string $email
+ * @property-read CarbonImmutable|null $email_verified_at
+ * @property-read CarbonImmutable $created_at
+ * @property-read CarbonImmutable $updated_at
+ */
 final class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * The credential of the user.
      *
-     * @var list<string>
+     * @return HasOne<AuthAccount, $this>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    public function authAccount(): HasOne
+    {
+        return $this->hasOne(AuthAccount::class);
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -44,7 +43,6 @@ final class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
     }
 }
