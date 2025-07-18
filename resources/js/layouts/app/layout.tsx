@@ -1,10 +1,11 @@
+import { usePage } from '@inertiajs/react';
 import { CSSProperties, type ReactNode } from 'react';
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
-import { BreadcrumbItem } from '@/types';
+import { BreadcrumbItem, SharedData } from '@/types';
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -12,6 +13,8 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, breadcrumbs }: AppLayoutProps) {
+    const isOpen = usePage<SharedData>().props.sidebarOpen;
+
     return (
         <SidebarProvider
             style={
@@ -20,6 +23,7 @@ export default function AppLayout({ children, breadcrumbs }: AppLayoutProps) {
                     '--sidebar-width-mobile': '20rem',
                 } as CSSProperties
             }
+            defaultOpen={isOpen}
         >
             <AppSidebar />
             <SidebarInset>

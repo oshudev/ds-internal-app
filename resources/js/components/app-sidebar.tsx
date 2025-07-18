@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { BookOpen, Bot, GalleryVerticalEnd, Settings2, SquareTerminal, X } from 'lucide-react';
 import * as React from 'react';
 
@@ -51,9 +51,16 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const { state, toggleSidebar } = useSidebar();
+    const page = usePage();
     const isMobile = useIsMobile();
+    const { state, toggleSidebar } = useSidebar();
     const [isHovered, setIsHovered] = React.useState(false);
+
+    React.useEffect(() => {
+        if (state !== 'collapsed') {
+            setIsHovered(false);
+        }
+    }, [state]);
 
     return (
         <Sidebar {...props} collapsible="icon">
@@ -61,23 +68,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                     <SidebarMenuItem className="flex items-center" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
                         <SidebarMenuButton size="lg" className="bg-transparent hover:bg-transparent" asChild>
-                            <Link href="/dashboard">
-                                <div
-                                    className={cn(
-                                        'flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground',
-                                        state === 'collapsed' && isHovered && 'bg-transparent',
-                                    )}
-                                >
-                                    {state === 'collapsed' && isHovered ? <SidebarTrigger /> : <GalleryVerticalEnd className="size-4" />}
+                            {state === 'collapsed' ? (
+                                <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+                                    <div
+                                        className={cn(
+                                            'flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground',
+                                            isHovered && 'bg-transparent',
+                                        )}
+                                    >
+                                        {isHovered ? <SidebarTrigger /> : <GalleryVerticalEnd className="size-4" />}
+                                    </div>
                                 </div>
-                                <div
-                                    className={`overflow-hidden transition-all duration-300 ${
-                                        state === 'collapsed' ? 'w-0 opacity-0' : 'w-auto opacity-100'
-                                    }`}
-                                >
-                                    <span className="font-medium whitespace-nowrap">DS Law Office</span>
-                                </div>
-                            </Link>
+                            ) : (
+                                <Link href="/dashboard">
+                                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                                        <GalleryVerticalEnd className="size-4" />
+                                    </div>
+                                    <div className="overflow-hidden transition-all duration-300">
+                                        <span className="font-medium whitespace-nowrap">DS Law Office</span>
+                                    </div>
+                                </Link>
+                            )}
                         </SidebarMenuButton>
                         {state === 'expanded' && !isMobile && <SidebarTrigger />}
                         {isMobile && (
@@ -97,10 +108,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <SidebarMenuItem key={index} className="group">
                                 <SidebarMenuButton
                                     asChild
-                                    className={cn(
-                                        'flex items-center gap-2',
-                                        item.isActive && 'bg-sidebar-secondary text-sidebar-secondary-foreground',
-                                    )}
+                                    isActive={page.url.startsWith(item.url)}
+                                    tooltip={{ children: item.title }}
+                                    className={cn('flex items-center gap-2')}
                                 >
                                     <Link href={item.url}>
                                         <item.icon className="size-4" />
